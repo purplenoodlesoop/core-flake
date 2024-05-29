@@ -1,7 +1,6 @@
 { self
 , flake-utils
 , nixpkgs
-, fh
 }: inputs @ { name, systemSpecific, ... }:
 let
   lib = nixpkgs.lib;
@@ -16,17 +15,21 @@ let
   };
   mkDevShells = { shells, tooling, mkShell }:
     let
+      inheritShell = name: packages: mkShell {
+        inherit name packages;
+      };
       nonDefaultPkgs = builtins.removeAttrs shells [ "default" ];
-      add = a: b: a ++ b;
       defaultShell.default = mkShell {
         inherit name;
-        packages = tooling ++ (builtins.foldl' add shells.default (builtins.attrValues nonDefaultPkgs));
+        packages =
+          let
+            add = a: b: a ++ b;
+            pkgs = builtins.attrValues nonDefaultPkgs;
+            default = builtins.foldl' add shells.default pkgs;
+          in
+          tooling ++ default;
       };
-      nonDefaultShells = lib.mapAttrs
-        (name: packages: mkShell {
-          inherit name packages;
-        })
-        nonDefaultPkgs;
+      nonDefaultShells = lib.mapAttrs inheritShell nonDefaultPkgs;
     in
     defaultShell // nonDefaultShells;
 
@@ -45,7 +48,6 @@ let
         tooling = with pkgs; [
           nil
           nixpkgs-fmt
-          fh.packages.${system}.default
         ];
       };
       packages = mkFlakePackages (output.packages or { });

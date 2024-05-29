@@ -1,5 +1,4 @@
-{ nixpkgs
-}: {
+{ nixpkgs }: {
   merge = toolchains:
     let
       mergToolchains = acc: toolchain: {
