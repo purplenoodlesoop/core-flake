@@ -39,7 +39,7 @@ let
       toolchains = import ./toolchains.nix {
         inherit lib self pkgs;
       };
-      output = systemSpecific { inherit pkgs toolchains; };
+      output = systemSpecific { inherit pkgs toolchains system; };
     in
     {
       devShells = mkDevShells {

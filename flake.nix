@@ -18,7 +18,7 @@
     in
     mkFlake {
       name = "core";
-      systemSpecific = { pkgs, toolchains }: {
+      systemSpecific = { pkgs, toolchains, system }: {
         packages = {
           fvm = import ./packages/fvm/shell.nix { inherit pkgs; };
         };

@@ -1,26 +1,24 @@
 {
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/*.tar.gz";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     core-flake = {
-      url = "git+ssh://git@github.com/purplenoodlesoop/core-flake";
+      url = "github:purplenoodlesoop/core-flake/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs =
-    { self
-    , nixpkgs
-    , core-flake
-    }:
+  outputs = { self, nixpkgs, core-flake }:
     let
       core = core-flake.lib;
-      name = throw "Undefined name";
-      systemSpecific = { pkgs, toolchains }:
+      name = throw "Undefined flake name";
+      systemSpecific = { pkgs, toolchains, system }:
         let
 
         in
         {
-          devEnv = [ ];
+          # shells = {};
+          # apps = {};
+          # packages = {};
         };
     in
     core.mkFlake {
