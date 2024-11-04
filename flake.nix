@@ -19,11 +19,21 @@
           flake-utils
           ;
       };
-      core.flake = {
+    in
+    evalFlake {
+      imports = [
+        ./packages/fvm
+        ./lib/modules/tasks.nix
+        ./lib/modules/compose.nix
+        # ./example/tasks.nix
+      ];
+
+      flake = {
         templates.default = {
           description = "Default template.";
           path = ./template;
         };
+
         extraConfig = {
           nixosModules = {
             tasks = ./lib/modules/tasks.nix;
@@ -34,13 +44,5 @@
           };
         };
       };
-    in
-    evalFlake {
-      modules = [
-        core
-        # ./packages/fvm
-        # ./lib/modules/tasks.nix
-        # ./example/tasks.nix
-      ];
     };
 }

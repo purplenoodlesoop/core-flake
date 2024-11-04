@@ -4,54 +4,35 @@
 }:
 module:
 let
-  inherit (flake-utils.lib)
-    eachDefaultSystem
+  inherit (nixpkgs)
+    lib
     ;
-  inherit (nixpkgs.lib)
-    flip
-    concatAttrs
+  inherit (lib)
+    mergeAttrs
     pipe
-    getExe
-    mapAttrs
     ;
-  getPkgs = system: nixpkgs.legacyPackages.${system};
   flake.modules = [
     ./modules/flake.nix
     module
   ];
   evalModules =
     args:
-    pipe flake [
-      (flip concatAttrs args)
-      evalModules
+    pipe args [
+      (mergeAttrs flake)
+      lib.evalModules
       (m: m.config.flake)
     ];
   evalSystemSpecific =
     system:
     let
-      pkgs = getPkgs system;
       config = evalModules {
         specialArgs = rec {
-          inherit pkgs;
+          pkgs = nixpkgs.legacyPackages.${system};
           core.compose = pkgs.callPackage ./compose.nix { };
         };
       };
-      inherit (config) perSystem;
-      mkFix = name: value: {
-        app = {
-          type = "app";
-          program = getExe value;
-        };
-        shell = pkgs.mkShell {
-          inherit name;
-          packages = value;
-        };
-      };
-      applyFix = type: mapAttrs (name: value: (mkFix name value).${type} or value);
-      fixedPerSystem = mapAttrs applyFix perSystem;
     in
-    fixedPerSystem // perSystem.extraConfig;
-  systemSpecificConfig = eachDefaultSystem evalSystemSpecific;
+    config.output;
   topLevelConfig = evalModules { };
 in
 {
@@ -59,5 +40,5 @@ in
     templates
     ;
 }
-// systemSpecificConfig
+// (flake-utils.lib.eachDefaultSystem evalSystemSpecific)
 // topLevelConfig.extraConfig

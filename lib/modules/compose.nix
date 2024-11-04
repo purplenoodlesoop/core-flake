@@ -18,7 +18,7 @@ let
   inherit (lib)
     mkOption
     pipe
-    concat
+    flatten
     attrValues
     mapAttrs
     const
@@ -31,30 +31,36 @@ let
     str
     package
     ;
-  options = submodule {
-    images = mkOption {
-      type = listOf package;
-      default = [ ];
-      description = "Docker images (dockerTools) do be loaded";
-    };
+  composeProject = submodule {
+    options = {
+      images = mkOption {
+        type = listOf package;
+        default = [ ];
+        description = "Docker images (dockerTools) do be loaded";
+      };
 
-    link = mkOption {
-      type = attrsOf str;
-      default = { };
-    };
+      link = mkOption {
+        type = attrsOf str;
+        default = { };
+      };
 
-    yml = mkOption {
-      type = raw;
-      default = { };
+      yml = mkOption {
+        type = raw;
+        default = { };
+      };
     };
   };
   pipeModules = pipe (attrValues config.compose);
   collectedImages = pipeModules [
     (map (module: module.images))
-    concat
+    flatten
   ];
   mkSubCompose =
-    { link, yml, ... }:
+    {
+      link,
+      yml,
+      ...
+    }:
     let
       compose = writeJSON yml;
       name = ".limbs.json";
@@ -75,36 +81,38 @@ let
   docker = cmd: "docker ${cmd}";
   loadImage = image: docker "image load -i ${image}";
   compose = cmd: "${docker "compose --file ${joined}"} ${cmd}";
-  composeTasks = mapAttrs (const compose) {
-    compose-pull = "pull";
-    compose-up = ''
-      \
-       --progress plain \
-       up \
-       --detach \
-       --remove-orphans \
-       --timestamps
-    '';
-    compose-list = "ls";
-  };
+  composeTasks =
+    # mapAttrs (const compose) 
+    {
+      compose-pull = "pull";
+      # compose-up = ''
+      #   \
+      #    --progress plain \
+      #    up \
+      #    --detach \
+      #    --remove-orphans \
+      #    --timestamps
+      # '';
+      # compose-list = "ls";
+    };
 in
 {
   imports = [
     ./tasks.nix
   ];
 
-  options.compose = {
+  options.compose = mkOption {
     default = { };
-    type = attrsOf options;
+    type = attrsOf composeProject;
   };
 
   config.tasks = composeTasks // {
-    compose-load = map loadImage collectedImages;
-    compose-apply = with config.tasks; [
-      compose-load
-      compose-pull
-      compose-up
-      compose-list
-    ];
+    # compose-load = map loadImage collectedImages;
+    # compose-apply = with config.tasks; [
+    #   compose-load
+    #   compose-pull
+    #   compose-up
+    #   compose-list
+    # ];
   };
 }
