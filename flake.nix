@@ -2,35 +2,47 @@
   description = "Abstractions for Nix flake development.";
 
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/*.tar.gz";
-    flake-utils.url = "https://flakehub.com/f/numtide/flake-utils/*.tar.gz";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
-    { self
-    , nixpkgs
-    , flake-utils
+    {
+      nixpkgs,
+      flake-utils,
+      ...
     }:
     let
-      mkFlake = import ./lib/mkFlake.nix {
-        inherit self nixpkgs flake-utils;
+      evalFlake = import ./lib/evalFlake.nix {
+        inherit
+          nixpkgs
+          flake-utils
+          ;
       };
     in
-    mkFlake {
-      name = "core";
-      systemSpecific = { pkgs, toolchains, system }: {
-        packages = {
-          fvm = import ./packages/fvm/shell.nix { inherit pkgs; };
+    evalFlake {
+      imports = [
+        ./packages/fvm
+        ./lib/modules/tasks.nix
+        ./lib/modules/compose.nix
+        # ./example/tasks.nix
+      ];
+
+      flake = {
+        templates.default = {
+          description = "Default template.";
+          path = ./template;
         };
-      };
-      lib = {
-        inherit mkFlake;
-        toolchain = import ./lib/toolchainLib.nix { inherit nixpkgs; };
-      };
-      templates.default = {
-        description = "Default template.";
-        path = ./template;
+
+        extraConfig = {
+          nixosModules = {
+            tasks = ./lib/modules/tasks.nix;
+            compose = ./lib/modules/compose.nix;
+          };
+          lib = {
+            inherit evalFlake;
+          };
+        };
       };
     };
 }
-    
