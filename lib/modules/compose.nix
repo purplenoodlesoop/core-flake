@@ -81,20 +81,18 @@ let
   docker = cmd: "docker ${cmd}";
   loadImage = image: docker "image load -i ${image}";
   compose = cmd: "${docker "compose --file ${joined}"} ${cmd}";
-  composeTasks =
-    # mapAttrs (const compose) 
-    {
-      compose-pull = "pull";
-      # compose-up = ''
-      #   \
-      #    --progress plain \
-      #    up \
-      #    --detach \
-      #    --remove-orphans \
-      #    --timestamps
-      # '';
-      # compose-list = "ls";
-    };
+  composeTasks = mapAttrs (const compose) {
+    compose-pull = "pull";
+    compose-up = ''
+      \
+       --progress plain \
+       up \
+       --detach \
+       --remove-orphans \
+       --timestamps
+    '';
+    compose-list = "ls";
+  };
 in
 {
   imports = [
@@ -107,12 +105,12 @@ in
   };
 
   config.tasks = composeTasks // {
-    # compose-load = map loadImage collectedImages;
-    # compose-apply = with config.tasks; [
-    #   compose-load
-    #   compose-pull
-    #   compose-up
-    #   compose-list
-    # ];
+    compose-load = map loadImage collectedImages;
+    compose-apply = with config.tasks; [
+      compose-load
+      compose-pull
+      compose-up
+      compose-list
+    ];
   };
 }
