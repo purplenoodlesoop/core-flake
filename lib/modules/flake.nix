@@ -60,6 +60,11 @@ let
       default = [ ];
       type = listOf package;
     };
+    devShells = {
+      description = "A list of shells to be built besides the default one";
+      default = { };
+      type = attrsOf anything;
+    };
     templates = {
       default = { };
       type = attrsOf (submodule template);
@@ -84,6 +89,7 @@ let
     packages
     apps
     shell
+    devShells
     ;
 in
 options
@@ -91,9 +97,11 @@ options
   config.flake.output = {
     inherit packages;
     apps = mapAttrs mkApp apps;
-    devShells.default = pkgs.mkShell {
-      name = "default";
-      packages = shell;
+    devShells = devShells // {
+      default = pkgs.mkShell {
+        name = "default";
+        packages = shell;
+      };
     };
   };
 }
