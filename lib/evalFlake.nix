@@ -25,14 +25,18 @@ let
   evalSystemSpecific =
     system:
     let
-      config = evalModules {
-        specialArgs = rec {
-          pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        inherit (flake.perSystem) config;
+      };
+      flake = evalModules {
+        specialArgs = {
+          inherit pkgs;
           core.compose = pkgs.callPackage ./compose.nix { };
         };
       };
     in
-    config.output;
+    flake.output;
   topLevelConfig = evalModules { };
 in
 {

@@ -28,12 +28,13 @@ let
   mkOptions = options: {
     options = mapAttrs (const mkOption) options;
   };
+  anyAttrs = {
+    default = { };
+    type = attrsOf anything;
+  };
   mkOptionsWithExtraConfig = flip pipe [
     (mergeAttrs {
-      extraConfig = {
-        default = { };
-        type = attrsOf anything;
-      };
+      extraConfig = anyAttrs;
     })
     mkOptions
   ];
@@ -45,6 +46,7 @@ let
     path.type = path;
   };
   flake = mkOptionsWithExtraConfig {
+    config = anyAttrs;
     apps = {
       description = "Runnable applications that are built by nix and can be run by using `nix run .#name`";
       default = { };
