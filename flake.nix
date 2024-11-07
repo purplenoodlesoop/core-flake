@@ -29,6 +29,8 @@
       ];
 
       flake = {
+        config.allowBroken = true;
+
         templates.default = {
           description = "Default template.";
           path = ./template;

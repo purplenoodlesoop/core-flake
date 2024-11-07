@@ -25,12 +25,9 @@ let
   evalSystemSpecific =
     system:
     let
-      inherit (flake)
-        config
-        output
-        ;
       pkgs = import nixpkgs {
-        inherit system config;
+        inherit system;
+        inherit (flake) config;
       };
       flake = evalModules {
         specialArgs = {
@@ -39,7 +36,7 @@ let
         };
       };
     in
-    output;
+    flake.output;
   topLevelConfig = evalModules { };
 in
 {
