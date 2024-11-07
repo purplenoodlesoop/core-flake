@@ -27,7 +27,7 @@ let
     let
       pkgs = import nixpkgs {
         inherit system;
-        # inherit (flake) config;
+        inherit (flake) config;
       };
       flake = evalModules {
         specialArgs = {
