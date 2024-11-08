@@ -25,7 +25,6 @@
         ./packages/fvm
         ./lib/modules/tasks.nix
         ./lib/modules/compose.nix
-        # ./example/tasks.nix
       ];
 
       flake = {

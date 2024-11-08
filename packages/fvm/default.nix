@@ -1,23 +1,25 @@
-{ pkgs, lib, ... }:
+{
+  nixpkgs,
+  pkgs,
+  ...
+}:
 let
-  inherit (pkgs)
-    buildDartApplication
-    fetchFromGitHub
-    ;
   name = "fvm";
+  overlay = self: super: {
+    ${name} = self.callPackage ./package.nix {
+      inherit name;
+    };
+  };
+  overladed = import nixpkgs {
+    inherit (pkgs) system;
+    overlays = [ overlay ];
+  };
 in
 {
-  flake.packages.${name} = buildDartApplication rec {
-    pname = name;
-    version = "2.4.1";
-
-    src = fetchFromGitHub {
-      owner = "leoafarias";
-      repo = pname;
-      rev = "v" + version;
-      sha256 = "sha256-GFjd9+eI8Aa1HTG3SKtJuNz1JREnAG2p2T4TbcuDaIw=";
+  flake = {
+    packages = with overladed; {
+      inherit fvm;
     };
-
-    pubspecLock = lib.importJSON ./pubspec.lock.json;
+    overlays.${name} = overlay;
   };
 }

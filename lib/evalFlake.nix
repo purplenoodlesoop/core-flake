@@ -27,21 +27,26 @@ let
     let
       pkgs = import nixpkgs {
         inherit system;
-        inherit (flake) config;
+        inherit (flake.nixpkgs) overlays;
       };
       flake = evalModules {
         specialArgs = {
-          inherit pkgs;
+          inherit nixpkgs pkgs;
           core.compose = pkgs.callPackage ./compose.nix { };
         };
       };
     in
     flake.output;
-  topLevelConfig = evalModules { };
+  topLevelConfig = evalModules {
+    specialArgs = {
+      inherit nixpkgs;
+    };
+  };
 in
 {
   inherit (topLevelConfig)
     templates
+    overlays
     ;
 }
 // (flake-utils.lib.eachDefaultSystem evalSystemSpecific)
