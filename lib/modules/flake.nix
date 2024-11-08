@@ -45,18 +45,7 @@ let
     };
     path.type = path;
   };
-  nixpkgs = mkOptions {
-    overlays = {
-      default = [ ];
-      type = listOf anything;
-    };
-  };
   flake = mkOptionsWithExtraConfig {
-    nixpkgs = {
-      description = "Configuration to be passed to nixpkgs import";
-      default = { };
-      type = submodule nixpkgs;
-    };
     apps = {
       description = "Runnable applications that are built by nix and can be run by using `nix run .#name`";
       default = { };

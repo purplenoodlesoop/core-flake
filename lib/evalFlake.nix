@@ -2,7 +2,10 @@
   nixpkgs,
   flake-utils,
 }:
-module:
+{
+  overlays ? [ ],
+  module,
+}:
 let
   inherit (nixpkgs)
     lib
@@ -27,7 +30,7 @@ let
     let
       pkgs = import nixpkgs {
         inherit system;
-        inherit (flake.nixpkgs) overlays;
+        inherit overlays;
       };
       flake = evalModules {
         specialArgs = {

@@ -8,6 +8,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       flake-utils,
       ...
@@ -19,28 +20,38 @@
           flake-utils
           ;
       };
+      overlay = self: super: {
+        fvm = self.callPackage ./packages/fvm/package.nix {
+          name = "fvm";
+        };
+      };
     in
     evalFlake {
-      imports = [
-        ./packages/fvm
-        ./lib/modules/tasks.nix
-        ./lib/modules/compose.nix
-      ];
+      overlays = [ overlay ];
+      module = {
+        imports = [
+          ./packages/fvm
+          ./lib/modules/tasks.nix
+          ./lib/modules/compose.nix
+        ];
 
-      flake = {
-        templates.default = {
-          description = "Default template.";
-          path = ./template;
-        };
+        flake = {
+          templates.default = {
+            description = "Default template.";
+            path = ./template;
+          };
 
-        extraConfig = {
-          nixosModules = {
-            tasks = ./lib/modules/tasks.nix;
-            compose = ./lib/modules/compose.nix;
+          extraConfig = {
+            nixosModules = {
+              tasks = ./lib/modules/tasks.nix;
+              compose = ./lib/modules/compose.nix;
+            };
+            lib = {
+              inherit evalFlake;
+            };
           };
-          lib = {
-            inherit evalFlake;
-          };
+
+          overlays.fvm = overlay;
         };
       };
     };
