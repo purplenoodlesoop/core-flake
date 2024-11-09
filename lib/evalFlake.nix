@@ -3,8 +3,10 @@
   flake-utils,
 }:
 {
+  # TODO: Return overlays as a part of a system-specific nixpkgs config returned by modules themselves
   overlays ? [ ],
-  module,
+  perSystem ? { },
+  topLevel ? { },
 }:
 let
   inherit (nixpkgs)
@@ -16,7 +18,7 @@ let
     ;
   flake.modules = [
     ./modules/flake.nix
-    module
+    perSystem
   ];
   evalModules =
     args:
@@ -29,8 +31,7 @@ let
     system:
     let
       pkgs = import nixpkgs {
-        inherit system;
-        inherit overlays;
+        inherit system overlays;
       };
       flake = evalModules {
         specialArgs = {
@@ -40,17 +41,5 @@ let
       };
     in
     flake.output;
-  topLevelConfig = evalModules {
-    specialArgs = {
-      inherit nixpkgs;
-    };
-  };
 in
-{
-  inherit (topLevelConfig)
-    templates
-    overlays
-    ;
-}
-// (flake-utils.lib.eachDefaultSystem evalSystemSpecific)
-// topLevelConfig.extraConfig
+(flake-utils.lib.eachDefaultSystem evalSystemSpecific) // topLevel

@@ -16,10 +16,8 @@ let
     ;
   inherit (lib.types)
     listOf
-    path
     attrsOf
     anything
-    str
     package
     submodule
     ;
@@ -38,13 +36,6 @@ let
     })
     mkOptions
   ];
-  template = mkOptions {
-    description = {
-      default = "";
-      type = str;
-    };
-    path.type = path;
-  };
   flake = mkOptionsWithExtraConfig {
     apps = {
       description = "Runnable applications that are built by nix and can be run by using `nix run .#name`";
@@ -66,13 +57,6 @@ let
       default = { };
       type = attrsOf anything;
     };
-    templates = {
-      default = { };
-      type = attrsOf (submodule template);
-    };
-    overlays = anyAttrs // {
-      description = "Globally exported overlays";
-    };
     output = {
       default = { };
       type = attrsOf anything;
@@ -84,7 +68,6 @@ let
       type = submodule flake;
     };
   };
-
   mkApp = pkg: {
     type = "app";
     program = getExe pkg;
