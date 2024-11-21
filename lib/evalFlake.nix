@@ -7,6 +7,7 @@
   overlays ? [ ],
   perSystem ? { },
   topLevel ? { },
+  specialArgs ? { },
 }:
 let
   inherit (nixpkgs)
@@ -34,7 +35,7 @@ let
         inherit system overlays;
       };
       flake = evalModules {
-        specialArgs = {
+        specialArgs = specialArgs // {
           inherit nixpkgs pkgs;
           core.compose = pkgs.callPackage ./compose.nix { };
         };
