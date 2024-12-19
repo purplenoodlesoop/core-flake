@@ -3,6 +3,8 @@
   buildDartApplication,
   fetchFromGitHub,
   lib,
+  stdenv,
+  yq,
 }:
 buildDartApplication rec {
   pname = name;

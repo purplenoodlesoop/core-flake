@@ -9,7 +9,6 @@ let
     writeShellApplication
     ;
   inherit (builtins)
-    map
     isString
     isList
     toString
@@ -21,7 +20,6 @@ let
   inherit (lib)
     mkOption
     pipe
-    const
     mkEnableOption
     getExe
     ;
@@ -121,6 +119,10 @@ in
         '')
       ];
     };
-    flake.shell = attrValues apps;
+
+    flake = {
+      inherit apps;
+      shell = attrValues apps;
+    };
   };
 }

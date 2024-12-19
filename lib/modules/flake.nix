@@ -68,9 +68,9 @@ let
       type = submodule flake;
     };
   };
-  mkApp = pkg: {
+  mkApp = name: pkg: {
     type = "app";
-    program = getExe pkg;
+    program = "${pkg}/bin/${name}";
   };
   inherit (config.flake)
     packages

@@ -104,13 +104,17 @@ in
     type = attrsOf composeProject;
   };
 
-  config.tasks = composeTasks // {
-    compose-load = map loadImage collectedImages;
-    compose-apply = with config.tasks; [
-      compose-load
-      compose-pull
-      compose-up
-      compose-list
-    ];
+  config = {
+    flake.packages.compose = joined;
+
+    tasks = composeTasks // {
+      compose-load = map loadImage collectedImages;
+      compose-apply = with config.tasks; [
+        compose-load
+        compose-pull
+        compose-up
+        compose-list
+      ];
+    };
   };
 }

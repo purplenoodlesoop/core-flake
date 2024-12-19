@@ -39,6 +39,7 @@
       };
       perSystem.imports = [
         ./packages/fvm
+        ./lib/modules/tasks.nix
       ];
     };
 }
