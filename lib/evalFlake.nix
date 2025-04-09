@@ -8,6 +8,7 @@
   perSystem ? { },
   topLevel ? { },
   specialArgs ? { },
+  config ? { },
 }:
 let
   inherit (nixpkgs)
@@ -32,7 +33,7 @@ let
     system:
     let
       pkgs = import nixpkgs {
-        inherit system overlays;
+        inherit system overlays config;
       };
       flake = evalModules {
         specialArgs = specialArgs // {
