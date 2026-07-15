@@ -5,6 +5,7 @@
 {
   # TODO: Return overlays as a part of a system-specific nixpkgs config returned by modules themselves
   overlays ? [ ],
+  systems ? flake-utils.lib.defaultSystems,
   perSystem ? { },
   topLevel ? { },
   specialArgs ? { },
@@ -44,4 +45,4 @@ let
     in
     flake.output;
 in
-(flake-utils.lib.eachDefaultSystem evalSystemSpecific) // topLevel
+(flake-utils.lib.eachSystem systems evalSystemSpecific) // topLevel
