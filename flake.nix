@@ -22,6 +22,12 @@
       overlay = import ./packages/fvm/overlay.nix;
     in
     evalFlake {
+      # nixpkgs unstable dropped x86_64-darwin; evaluating it throws.
+      systems = [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-linux"
+      ];
       overlays = [ overlay ];
       topLevel = {
         overlays.fvm = overlay;
