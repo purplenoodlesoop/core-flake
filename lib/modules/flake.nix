@@ -16,19 +16,23 @@ let
     ;
   inherit (lib.types)
     listOf
-    attrsOf
+    lazyAttrsOf
     anything
     package
     submodule
     ;
 
-  attrsOfPackages = attrsOf package;
+  # `lazyAttrsOf` rather than `attrsOf`: the module system must not force an
+  # output's value merely to learn the attribute's name. Keeping these lazy is
+  # what lets a consumer touch one system's outputs -- or only the top-level,
+  # system-independent ones -- without instantiating nixpkgs for every system.
+  attrsOfPackages = lazyAttrsOf package;
   mkOptions = options: {
     options = mapAttrs (const mkOption) options;
   };
   anyAttrs = {
     default = { };
-    type = attrsOf anything;
+    type = lazyAttrsOf anything;
   };
   mkOptionsWithExtraConfig = flip pipe [
     (mergeAttrs {
@@ -55,11 +59,11 @@ let
     devShells = {
       description = "A list of shells to be built besides the default one";
       default = { };
-      type = attrsOf anything;
+      type = lazyAttrsOf anything;
     };
     output = {
       default = { };
-      type = attrsOf anything;
+      type = lazyAttrsOf anything;
     };
   };
   options = mkOptions {
